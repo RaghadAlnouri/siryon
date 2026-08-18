@@ -13,105 +13,111 @@ import siryon_data
 
 # Page configuration
 st.set_page_config(
-    page_title="Project Siryon • Western Neo-Aramaic Living Web App",
+    page_title="Project Siryon • Western Neo-Aramaic Portal",
     page_icon="🏛️",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# Custom Styling for Syriac / Arabic / IPA typography & Levantine aesthetic
+# Editorial, spacious custom styling
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Arabic:wght@400;600&family=Noto+Sans+Syriac:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;600&family=Noto+Sans+Syriac:wght@400;600&display=swap');
 
-.syriac-script {
-    font-family: 'Noto Sans Syriac', 'Serto Jerusalem', 'Estrangelo Edessa', sans-serif;
-    font-size: 1.65rem;
-    line-height: 2.1rem;
-    direction: rtl;
-    text-align: right;
+html, body, [class*="css"] {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     color: #1e293b;
-    background-color: #f8fafc;
-    padding: 12px 16px;
-    border-radius: 8px;
-    border-right: 4px solid #b45309;
-    margin-bottom: 8px;
 }
 
-.arabic-script {
+.syriac-display {
+    font-family: 'Noto Sans Syriac', 'Serto Jerusalem', 'Estrangelo Edessa', serif;
+    font-size: 1.85rem;
+    line-height: 2.3rem;
+    direction: rtl;
+    text-align: right;
+    color: #0f172a;
+    background-color: #fafaf9;
+    padding: 16px 20px;
+    border-radius: 10px;
+    border-right: 4px solid #b45309;
+    margin: 8px 0 14px 0;
+}
+
+.arabic-display {
     font-family: 'Noto Sans Arabic', sans-serif;
-    font-size: 1.45rem;
-    line-height: 2.0rem;
+    font-size: 1.5rem;
+    line-height: 2.1rem;
     direction: rtl;
     text-align: right;
     color: #334155;
     background-color: #fffbeb;
-    padding: 10px 14px;
-    border-radius: 8px;
+    padding: 12px 16px;
+    border-radius: 10px;
     border-right: 4px solid #d97706;
-    margin-bottom: 8px;
+    margin: 8px 0 14px 0;
 }
 
-.ipa-script {
+.ipa-display {
     font-family: 'JetBrains Mono', monospace;
     font-size: 1.05rem;
-    color: #0f172a;
+    color: #1e293b;
     background-color: #f1f5f9;
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin-bottom: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin: 8px 0 14px 0;
     letter-spacing: 0.02em;
 }
 
-.card-container {
+.card-box {
     border: 1px solid #e2e8f0;
     border-radius: 12px;
-    padding: 18px;
+    padding: 22px;
     background: #ffffff;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04);
     height: 100%;
 }
 
-.badge-monastic {
+.dialect-badge-m {
     background-color: #fef3c7;
     color: #92400e;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 700;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
-.badge-poetic {
+.dialect-badge-j {
     background-color: #e0e7ff;
     color: #3730a3;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 700;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
-.badge-archaic {
+.dialect-badge-b {
     background-color: #dcfce7;
     color: #166534;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 700;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
-.root-pill {
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    background: #f1f5f9;
-    color: #0f172a;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    margin-right: 6px;
+.law-pill {
+    font-size: 0.85rem;
+    color: #475569;
+    background: #f8fafc;
+    border-left: 3px solid #64748b;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-top: 12px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -130,11 +136,8 @@ if 'story_generated' not in st.session_state:
 if 'gemini_api_key' not in st.session_state:
     st.session_state['gemini_api_key'] = os.environ.get("GEMINI_API_KEY", "")
 
-# Helper function for Gemini Live Call
+# Gemini Inference Helpers
 def call_gemini_grammar_prompt(api_key, phrase_text):
-    """
-    Invokes Gemini API zero-shot or uses the 2M-Token In-Context Semitic Grammar Prompt simulation.
-    """
     if not api_key:
         return None
     try:
@@ -147,15 +150,7 @@ def call_gemini_grammar_prompt(api_key, phrase_text):
         )
         return response.text
     except Exception as e:
-        try:
-            import google.generativeai as genai_legacy
-            genai_legacy.configure(api_key=api_key)
-            model = genai_legacy.GenerativeModel('gemini-2.0-flash')
-            prompt = siryon_data.SEMITIC_GRAMMAR_PROMPT_TEMPLATE.format(query=phrase_text)
-            response = model.generate_content(prompt)
-            return response.text
-        except Exception as e2:
-            return f"⚠️ Gemini API connection note: {str(e2)}"
+        return f"⚠️ Gemini API connection note: {str(e)}"
 
 def call_gemini_story_weaver(api_key, folktale_prompt):
     if not api_key:
@@ -176,277 +171,301 @@ def call_gemini_story_weaver(api_key, folktale_prompt):
     except Exception as e:
         return None
 
-# Sidebar Navigation & Settings
-with st.sidebar:
-    st.title("🏛️ Project Siryon")
-    st.subheader("Western Neo-Aramaic Preservation & Generative Studio")
-    st.caption("Maaloula • Jubb'adin • Bakh'a")
-    st.divider()
+# Sleek Editorial Top Bar & Settings Expander
+col_logo, col_sub, col_cfg = st.columns([2, 3, 2])
+with col_logo:
+    st.markdown("### 🏛️ Project Siryon")
+    st.caption("Living Western Neo-Aramaic Digital Portal • Maaloula, Jubb'adin & Bakh'a")
+with col_sub:
+    st.write("") # subtle spacing
+with col_cfg:
+    with st.popover("⚙️ Settings & Gemini API"):
+        st.markdown("**AI Configuration**")
+        api_key_input = st.text_input(
+            "GEMINI_API_KEY",
+            value=st.session_state['gemini_api_key'],
+            type="password",
+            placeholder="AIzaSy..."
+        )
+        if api_key_input != st.session_state['gemini_api_key']:
+            st.session_state['gemini_api_key'] = api_key_input
 
-    st.markdown("### 🔑 Gemini AI Configuration")
-    api_key_input = st.text_input(
-        "GEMINI_API_KEY",
-        value=st.session_state['gemini_api_key'],
-        type="password",
-        placeholder="AIzaSy..."
-    )
-    if api_key_input != st.session_state['gemini_api_key']:
-        st.session_state['gemini_api_key'] = api_key_input
+        st.caption("Uses our 2M-Token In-Context Semitic Grammar Prompt zero-shot.")
+        st.divider()
+        st.markdown("**Mountain Ambience Audio**")
+        st.caption("Qalamoun Field Ambience (#1974-04)")
+        # Audio simulator
+        st.audio("https://actions.google.com/sounds/v1/ambiences/outdoor_field_wind.ogg")
 
-    if st.session_state['gemini_api_key']:
-        st.success("✅ Gemini API Key Active (2M-Token In-Context Semitic Grammar Ready)")
-    else:
-        st.info("ℹ️ Using Built-in Qalamoun Tri-Dialect Corpus (Enter GEMINI_API_KEY for live zero-shot inference)")
-
-    st.divider()
-    st.markdown("### 🔊 Mountain Ambience")
-    st.caption("Qalamoun Field Recording (#1974-04 Ambience)")
-    # Audio simulator as specified in prompt
-    st.audio("https://actions.google.com/sounds/v1/ambiences/outdoor_field_wind.ogg")
-
-    st.divider()
-    st.markdown("### 🌍 Partnership & Corpus")
-    st.markdown("""
-    * **Heidelberg University MASC**: Maaloula Aramaic Speech Corpus
-    * **Enable Syria**: `go/enable-syria` Qalamoun Heritage Initiative
-    * **Argolis Vertex AI**: Zero-shot epigraphic alignment
-    """)
-
-# Header Banner
-st.title("📖 Project Siryon: Living Western Neo-Aramaic Portal")
-st.markdown("""
-Western Neo-Aramaic (*Līšānā ʾArāmāyā*) is the sole living descendant of the language spoken across the Levant 2,000 years ago, preserved today in three highland villages of the Qalamoun mountain range: **Maaloula**, **Jubb'adin**, and **Bakh'a**.
-""")
-
-# Create the 3 main Tabs
+# Main Editorial Navigation Tabs
 tab1, tab2, tab3 = st.tabs([
-    "📖 TAB 1: LEARN (Tri-Dialect Phrasebook)",
-    "🎨 TAB 2: PLAY (Generative Studio & Woolaroo Camera)",
-    "🔬 TAB 3: WORK (AI Epigraphy & Researcher Workbench)"
+    "📖 TAB 1: LEARN  (Tri-Dialect Phrasebook)",
+    "🎨 TAB 2: PLAY  (Generative Studio & Woolaroo Camera)",
+    "🔬 TAB 3: WORK  (AI Epigraphy & Researcher Workbench)"
 ])
 
 # ==============================================================================
-# TAB 1: LEARN (Tri-Dialect Phrasebook)
+# TAB 1: LEARN (Tri-Dialect Phrasebook) — Cleaned, Spacious & Progressive Disclosure
 # ==============================================================================
 with tab1:
-    st.header("📖 Tri-Dialect Western Neo-Aramaic Phrasebook")
-    st.write(
-        "Uses our **2M-Token In-Context Semitic Grammar Prompt zero-shot** to synthesize exact side-by-side dialect cards for "
-        "Maaloula (Christian/Monastic), Jubb'adin (Oral Poetry), and Bakh'a (Archaic Mountain)."
+    st.markdown("### Tri-Dialect Western Neo-Aramaic Phrasebook")
+    st.caption("Compare living Western Neo-Aramaic across three highland villages of Qalamoun. Powered by our 2M-Token In-Context Semitic Grammar Prompt zero-shot.")
+    
+    # Clean Phrase Picker Row
+    phrase_keys = list(siryon_data.PHRASEBOOK_CORPUS.keys())
+    phrase_titles = [siryon_data.PHRASEBOOK_CORPUS[k]["title"] for k in phrase_keys]
+    selected_idx = phrase_keys.index(st.session_state['selected_phrase_id']) if st.session_state['selected_phrase_id'] in phrase_keys else 0
+    
+    chosen_title = st.selectbox(
+        "Select Qalamoun Phrase or Tradition:",
+        options=phrase_titles,
+        index=selected_idx,
+        key="phrase_selector"
     )
-
-    col_sel, col_prompt_toggle = st.columns([3, 1])
-    with col_sel:
-        phrase_keys = list(siryon_data.PHRASEBOOK_CORPUS.keys())
-        phrase_titles = [siryon_data.PHRASEBOOK_CORPUS[k]["title"] for k in phrase_keys]
-        selected_idx = phrase_keys.index(st.session_state['selected_phrase_id']) if st.session_state['selected_phrase_id'] in phrase_keys else 0
-        chosen_title = st.selectbox(
-            "Select Qalamoun Phrase or In-Context Query:",
-            options=phrase_titles,
-            index=selected_idx
-        )
-        chosen_key = phrase_keys[phrase_titles.index(chosen_title)]
-        st.session_state['selected_phrase_id'] = chosen_key
-
-    with col_prompt_toggle:
-        show_prompt_inspector = st.checkbox("🔍 View 2M-Token Prompt Engine", value=False)
-
+    chosen_key = phrase_keys[phrase_titles.index(chosen_title)]
+    st.session_state['selected_phrase_id'] = chosen_key
     phrase_data = siryon_data.PHRASEBOOK_CORPUS[chosen_key]
 
-    if show_prompt_inspector:
-        with st.expander("2M-Token Zero-Shot In-Context Semitic Grammar Prompt", expanded=True):
-            st.code(
-                siryon_data.SEMITIC_GRAMMAR_PROMPT_TEMPLATE.format(query=phrase_data["english_literal"]),
-                language="plaintext"
+    # Literal translation banner
+    st.markdown(
+        f"""
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 18px; margin-bottom:18px;">
+            <span style="font-weight:600; color:#475569;">English Translation:</span> 
+            <span style="font-size:1.05rem; color:#0f172a;">"{phrase_data['english_literal']}"</span>
+            &nbsp;•&nbsp;
+            <span style="font-size:0.88rem; color:#64748b; font-family:'JetBrains Mono',monospace;">{phrase_data['semitic_root_summary']}</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Mode Selector: View All 3 Side-by-Side OR Single Dialect Deep Dive
+    view_mode = st.radio(
+        "Display Mode:",
+        options=["Side-by-Side Comparison (All 3 Dialects)", "Maaloula Only (Christian/Monastic)", "Jubb'adin Only (Oral Poetry)", "Bakh'a Only (Archaic Mountain)"],
+        horizontal=True,
+        label_visibility="collapsed"
+    )
+
+    dialects = phrase_data["dialects"]
+    
+    # Render Dialect Cards
+    if view_mode.startswith("Side-by-Side"):
+        d_col1, d_col2, d_col3 = st.columns(3)
+        with d_col1:
+            m = dialects["maaloula"]
+            st.markdown(
+                f"""
+                <div class="card-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-weight:700; font-size:1.15rem;">⛪ Maaloula</span>
+                        <span class="dialect-badge-m">{m['badge']}</span>
+                    </div>
+                    <div style="font-size:0.82rem; color:#64748b; margin-bottom:12px;">{m['sub_label']}</div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Syriac Estrangelo Script</div>
+                    <div class="syriac-display">{m['syriac_script']}</div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Adapted Arabic Script</div>
+                    <div class="arabic-display">{m['adapted_arabic']}</div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">IPA Phonetic Cadence</div>
+                    <div class="ipa-display">{m['ipa']}</div>
+                    
+                    <div class="law-pill"><strong>Phonological Shift:</strong> {m['phonological_note']}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
-            if st.session_state['gemini_api_key']:
-                if st.button("🚀 Run Live Zero-Shot Inference on Gemini API"):
-                    with st.spinner("Executing Zero-Shot In-Context Semitic Grammar Model..."):
-                        live_res = call_gemini_grammar_prompt(st.session_state['gemini_api_key'], phrase_data["english_literal"])
-                        if live_res:
-                            st.markdown("#### Gemini Zero-Shot Inference Output:")
-                            st.info(live_res)
+            if st.button("🔊 Play Syllable Guide (Maaloula)", key="m_aud"):
+                st.toast(f"Maaloula Phonetics: {m['audio_hint']}", icon="🔊")
 
-    st.markdown(f"**English Translation:** `{phrase_data['english_literal']}`  •  **Semitic Roots:** `{phrase_data['semitic_root_summary']}`")
+        with d_col2:
+            j = dialects["jubbadin"]
+            st.markdown(
+                f"""
+                <div class="card-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-weight:700; font-size:1.15rem;">🌾 Jubb'adin</span>
+                        <span class="dialect-badge-j">{j['badge']}</span>
+                    </div>
+                    <div style="font-size:0.82rem; color:#64748b; margin-bottom:12px;">{j['sub_label']}</div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Syriac Estrangelo Script</div>
+                    <div class="syriac-display">{j['syriac_script']}</div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Adapted Arabic Script</div>
+                    <div class="arabic-display">{j['adapted_arabic']}</div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">IPA Phonetic Cadence</div>
+                    <div class="ipa-display">{j['ipa']}</div>
+                    
+                    <div class="law-pill"><strong>Phonological Shift:</strong> {j['phonological_note']}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            if st.button("🔊 Play Syllable Guide (Jubb'adin)", key="j_aud"):
+                st.toast(f"Jubb'adin Phonetics: {j['audio_hint']}", icon="🔊")
 
-    # 3 Side-by-Side Dialect Cards
-    d_col1, d_col2, d_col3 = st.columns(3)
-
-    # 1. Maaloula
-    with d_col1:
-        m_data = phrase_data["dialects"]["maaloula"]
+        with d_col3:
+            b = dialects["bakha"]
+            st.markdown(
+                f"""
+                <div class="card-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-weight:700; font-size:1.15rem;">🏔️ Bakh'a</span>
+                        <span class="dialect-badge-b">{b['badge']}</span>
+                    </div>
+                    <div style="font-size:0.82rem; color:#64748b; margin-bottom:12px;">{b['sub_label']}</div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Syriac Estrangelo Script</div>
+                    <div class="syriac-display">{b['syriac_script']}</div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Adapted Arabic Script</div>
+                    <div class="arabic-display">{b['adapted_arabic']}</div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">IPA Phonetic Cadence</div>
+                    <div class="ipa-display">{b['ipa']}</div>
+                    
+                    <div class="law-pill"><strong>Phonological Shift:</strong> {b['phonological_note']}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            if st.button("🔊 Play Syllable Guide (Bakh'a)", key="b_aud"):
+                st.toast(f"Bakh'a Phonetics: {b['audio_hint']}", icon="🔊")
+    else:
+        # Single focused card view
+        d_key = "maaloula" if "Maaloula" in view_mode else ("jubbadin" if "Jubb'adin" in view_mode else "bakha")
+        single = dialects[d_key]
         st.markdown(
             f"""
-            <div class="card-container">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span style="font-weight:700; font-size:1.1rem; color:#1e293b;">⛪ Maaloula</span>
-                    <span class="badge-monastic">{m_data['badge']}</span>
-                </div>
-                <div style="font-size:0.8rem; color:#64748b; margin-bottom:12px;">{m_data['sub_label']}</div>
-                <div style="font-size:0.75rem; font-weight:600; color:#475569;">Exact Syriac Script (Estrangelo):</div>
-                <div class="syriac-script">{m_data['syriac_script']}</div>
-                <div style="font-size:0.75rem; font-weight:600; color:#475569;">Adapted Arabic Script:</div>
-                <div class="arabic-script">{m_data['adapted_arabic']}</div>
-                <div style="font-size:0.75rem; font-weight:600; color:#475569;">IPA Phonetic Transliteration:</div>
-                <div class="ipa-script">{m_data['ipa']}</div>
-                <div style="font-size:0.82rem; color:#334155; background:#f8fafc; padding:8px; border-radius:6px; margin-bottom:10px;">
-                    <strong>Phonology Law:</strong> {m_data['phonological_note']}
-                </div>
+            <div class="card-box" style="max-width:800px; margin:0 auto;">
+                <div style="font-size:1.25rem; font-weight:700; color:#0f172a;">{single['name']}</div>
+                <div style="font-size:0.88rem; color:#64748b; margin-bottom:16px;">{single['sub_label']}</div>
+                <div style="font-size:0.78rem; font-weight:700; color:#64748b; text-transform:uppercase;">Syriac Script</div>
+                <div class="syriac-display" style="font-size:2.1rem;">{single['syriac_script']}</div>
+                <div style="font-size:0.78rem; font-weight:700; color:#64748b; text-transform:uppercase;">Adapted Arabic Script</div>
+                <div class="arabic-display" style="font-size:1.75rem;">{single['adapted_arabic']}</div>
+                <div style="font-size:0.78rem; font-weight:700; color:#64748b; text-transform:uppercase;">IPA Phonetic Cadence</div>
+                <div class="ipa-display" style="font-size:1.15rem;">{single['ipa']}</div>
+                <div class="law-pill"><strong>Phonological Shift:</strong> {single['phonological_note']}</div>
             </div>
             """,
             unsafe_allow_html=True
         )
-        if st.button("🔊 Audio Guide (Maaloula Cadence)", key="audio_m"):
-            st.toast(f"Pronunciation Guide: {m_data['audio_hint']}", icon="🔊")
 
-    # 2. Jubb'adin
-    with d_col2:
-        j_data = phrase_data["dialects"]["jubbadin"]
-        st.markdown(
-            f"""
-            <div class="card-container">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span style="font-weight:700; font-size:1.1rem; color:#1e293b;">🌾 Jubb'adin</span>
-                    <span class="badge-poetic">{j_data['badge']}</span>
-                </div>
-                <div style="font-size:0.8rem; color:#64748b; margin-bottom:12px;">{j_data['sub_label']}</div>
-                <div style="font-size:0.75rem; font-weight:600; color:#475569;">Exact Syriac Script (Estrangelo):</div>
-                <div class="syriac-script">{j_data['syriac_script']}</div>
-                <div style="font-size:0.75rem; font-weight:600; color:#475569;">Adapted Arabic Script:</div>
-                <div class="arabic-script">{j_data['adapted_arabic']}</div>
-                <div style="font-size:0.75rem; font-weight:600; color:#475569;">IPA Phonetic Transliteration:</div>
-                <div class="ipa-script">{j_data['ipa']}</div>
-                <div style="font-size:0.82rem; color:#334155; background:#f8fafc; padding:8px; border-radius:6px; margin-bottom:10px;">
-                    <strong>Phonology Law:</strong> {j_data['phonological_note']}
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
+    # Progressive Disclosure Expanders so screen stays uncluttered
+    with st.expander("🔬 Morphological Token Decomposition & Semitic Root Cognate Matrix"):
+        st.write("Decomposition of Semitic triliteral roots and cross-linguistic cognates across Syriac, Hebrew, and Arabic.")
+        st.table(pd.DataFrame(phrase_data["tokens_breakdown"]))
+
+    with st.expander("🔍 Inspect 2M-Token In-Context Semitic Grammar Prompt Template"):
+        st.code(
+            siryon_data.SEMITIC_GRAMMAR_PROMPT_TEMPLATE.format(query=phrase_data["english_literal"]),
+            language="plaintext"
         )
-        if st.button("🔊 Audio Guide (Jubb'adin Poetic Cadence)", key="audio_j"):
-            st.toast(f"Pronunciation Guide: {j_data['audio_hint']}", icon="🔊")
-
-    # 3. Bakh'a
-    with d_col3:
-        b_data = phrase_data["dialects"]["bakha"]
-        st.markdown(
-            f"""
-            <div class="card-container">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span style="font-weight:700; font-size:1.1rem; color:#1e293b;">🏔️ Bakh'a</span>
-                    <span class="badge-archaic">{b_data['badge']}</span>
-                </div>
-                <div style="font-size:0.8rem; color:#64748b; margin-bottom:12px;">{b_data['sub_label']}</div>
-                <div style="font-size:0.75rem; font-weight:600; color:#475569;">Exact Syriac Script (Estrangelo):</div>
-                <div class="syriac-script">{b_data['syriac_script']}</div>
-                <div style="font-size:0.75rem; font-weight:600; color:#475569;">Adapted Arabic Script:</div>
-                <div class="arabic-script">{b_data['adapted_arabic']}</div>
-                <div style="font-size:0.75rem; font-weight:600; color:#475569;">IPA Phonetic Transliteration:</div>
-                <div class="ipa-script">{b_data['ipa']}</div>
-                <div style="font-size:0.82rem; color:#334155; background:#f8fafc; padding:8px; border-radius:6px; margin-bottom:10px;">
-                    <strong>Phonology Law:</strong> {b_data['phonological_note']}
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        if st.button("🔊 Audio Guide (Bakh'a High Altitude)", key="audio_b"):
-            st.toast(f"Pronunciation Guide: {b_data['audio_hint']}", icon="🔊")
-
-    st.divider()
-    st.subheader("Comparative Semitic Root & Morphological Etymology")
-    df_tokens = pd.DataFrame(phrase_data["tokens_breakdown"])
-    st.table(df_tokens)
+        if st.session_state['gemini_api_key']:
+            if st.button("⚡ Execute Live Zero-Shot Prompt with Gemini API"):
+                with st.spinner("Calling Gemini API..."):
+                    res = call_gemini_grammar_prompt(st.session_state['gemini_api_key'], phrase_data["english_literal"])
+                    if res:
+                        st.info(res)
 
 
 # ==============================================================================
-# TAB 2: PLAY (Generative Studio & Woolaroo Camera)
+# TAB 2: PLAY (Generative Studio & Woolaroo Camera) — Clean Sub-Navigation
 # ==============================================================================
 with tab2:
-    st.header("🎨 PLAY: Woolaroo Object Camera & Aramaic Story Weaver")
-
-    st.subheader("1. 📷 Woolaroo Levantine Object Simulator")
-    st.write(
-        "Pick a real Levantine cultural object from the Qalamoun highlands (traditional Tannour flatbread, terraced olive tree, "
-        "Faj Maaloula mountain gorge) to view interactive visual Aramaic cards."
+    play_sub = st.radio(
+        "Choose Play Studio Mode:",
+        options=["📷 Woolaroo Levantine Object Camera", "📜 The Aramaic Story Weaver (Bilingual Folktale Studio)"],
+        horizontal=True
     )
 
-    # Object Selector Pills
-    obj_cols = st.columns(len(siryon_data.WOOLAROO_OBJECTS))
-    for i, obj in enumerate(siryon_data.WOOLAROO_OBJECTS):
-        with obj_cols[i]:
-            selected = (st.session_state['selected_woolaroo_id'] == obj['id'])
-            btn_style = "primary" if selected else "secondary"
-            if st.button(f"{obj['emoji']} {obj['title']}", key=f"wobj_{obj['id']}", use_container_width=True):
-                st.session_state['selected_woolaroo_id'] = obj['id']
+    if "Woolaroo" in play_sub:
+        st.markdown("### 📷 Woolaroo Levantine Object Discovery")
+        st.caption("Select a Levantine highland artifact to inspect its visual Aramaic cards across Syriac, Adapted Arabic, and IPA script.")
 
-    selected_obj = next(o for o in siryon_data.WOOLAROO_OBJECTS if o['id'] == st.session_state['selected_woolaroo_id'])
+        # Sleek 5-item pill bar
+        w_pills = st.columns(len(siryon_data.WOOLAROO_OBJECTS))
+        for i, obj in enumerate(siryon_data.WOOLAROO_OBJECTS):
+            with w_pills[i]:
+                active = (st.session_state['selected_woolaroo_id'] == obj['id'])
+                if st.button(
+                    f"{obj['emoji']} {obj['title']}",
+                    key=f"w_pill_{obj['id']}",
+                    type="primary" if active else "secondary",
+                    use_container_width=True
+                ):
+                    st.session_state['selected_woolaroo_id'] = obj['id']
 
-    # Display High-Craft Woolaroo Visual Card
-    w_card_col1, w_card_col2 = st.columns([1, 2])
-    with w_card_col1:
-        st.markdown(
-            f"""
-            <div style="border:2px solid #b45309; border-radius:16px; padding:32px; text-align:center; background:#fffbeb;">
-                <div style="font-size:4.5rem; margin-bottom:12px;">{selected_obj['emoji']}</div>
-                <div style="font-weight:700; font-size:1.2rem; color:#78350f;">{selected_obj['title']}</div>
-                <div style="font-size:0.85rem; color:#b45309; margin-top:4px;">{selected_obj['category']}</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-    with w_card_col2:
-        st.markdown(
-            f"""
-            <div style="border:1px solid #cbd5e1; border-radius:12px; padding:20px; background:#ffffff;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:0.9rem; font-weight:700; color:#64748b; text-transform:uppercase;">Syriac Estrangelo Label</span>
-                    <span style="font-family:'JetBrains Mono',monospace; font-size:0.85rem; background:#f1f5f9; padding:4px 8px; border-radius:4px;">{selected_obj['root_cognate']}</span>
+        selected_obj = next(o for o in siryon_data.WOOLAROO_OBJECTS if o['id'] == st.session_state['selected_woolaroo_id'])
+
+        # Clean 2-column museum exhibit card
+        c_visual, c_meta = st.columns([1, 2.2])
+        with c_visual:
+            st.markdown(
+                f"""
+                <div style="border:1px solid #e2e8f0; border-radius:14px; padding:38px 20px; text-align:center; background:#fafaf9;">
+                    <div style="font-size:5.5rem; margin-bottom:14px;">{selected_obj['emoji']}</div>
+                    <div style="font-weight:700; font-size:1.25rem; color:#0f172a;">{selected_obj['title']}</div>
+                    <div style="font-size:0.82rem; color:#b45309; font-weight:600; text-transform:uppercase; margin-top:6px;">{selected_obj['category']}</div>
                 </div>
-                <div class="syriac-script" style="font-size:2.0rem; margin-top:8px;">{selected_obj['aramaic_name_syr']}</div>
-                
-                <div style="font-size:0.9rem; font-weight:700; color:#64748b; text-transform:uppercase; margin-top:12px;">Adapted Arabic Script Label</div>
-                <div class="arabic-script" style="font-size:1.6rem;">{selected_obj['aramaic_name_arab']}</div>
-                
-                <div style="font-size:0.9rem; font-weight:700; color:#64748b; text-transform:uppercase; margin-top:12px;">IPA Transliteration</div>
-                <div class="ipa-script">{selected_obj['ipa']}</div>
-                
-                <p style="margin-top:12px; color:#334155; line-height:1.5;"><strong>Cultural Context:</strong> {selected_obj['desc']}</p>
-                <p style="color:#475569; font-style:italic;"><strong>Qalamoun Usage:</strong> "{selected_obj['sample_sentence']}"</p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        if st.button(f"🔊 Listen to Pronunciation ({selected_obj['audio_phonetic']})", key="wobj_audio"):
-            st.toast(f"Pronouncing {selected_obj['aramaic_name_syr']} ({selected_obj['audio_phonetic']})", icon="🔊")
+                """,
+                unsafe_allow_html=True
+            )
+        with c_meta:
+            st.markdown(
+                f"""
+                <div class="card-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="font-size:0.78rem; font-weight:700; color:#64748b; text-transform:uppercase;">Etymological Cognate Root</span>
+                        <span style="font-family:'JetBrains Mono',monospace; font-size:0.85rem; background:#f1f5f9; color:#0f172a; padding:4px 8px; border-radius:6px;">{selected_obj['root_cognate']}</span>
+                    </div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Syriac Estrangelo Label</div>
+                    <div class="syriac-display" style="font-size:2.0rem; padding:10px 16px;">{selected_obj['aramaic_name_syr']}</div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Adapted Arabic Script Label</div>
+                    <div class="arabic-display" style="font-size:1.55rem; padding:10px 16px;">{selected_obj['aramaic_name_arab']}</div>
+                    
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">IPA Phonetic Cadence</div>
+                    <div class="ipa-display">{selected_obj['ipa']}</div>
+                    
+                    <p style="margin-top:14px; font-size:0.95rem; color:#334155; line-height:1.5;"><strong>Cultural Significance:</strong> {selected_obj['desc']}</p>
+                    <p style="font-size:0.9rem; color:#475569; font-style:italic;"><strong>Qalamoun Proverb:</strong> "{selected_obj['sample_sentence']}"</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            if st.button(f"🔊 Listen to Pronunciation • {selected_obj['audio_phonetic']}", key="aud_wobj"):
+                st.toast(f"Syllable cadence: {selected_obj['audio_phonetic']}", icon="🔊")
 
-    st.divider()
+    else:
+        st.markdown("### 📜 The Aramaic Story Weaver (Bilingual Folktale Studio)")
+        st.caption("Weave Qalamoun mountain legends with Gemini AI in bilingual English and Western Neo-Aramaic verse.")
 
-    # The Aramaic Story Weaver
-    st.subheader("2. 📜 The Aramaic Story Weaver (Bilingual Folktale Studio)")
-    st.write(
-        "Type a Qalamoun folktale prompt or select an oral legend motif. Watch Gemini weave a bilingual Levantine story "
-        "with authentic Western Neo-Aramaic verse interlaid."
-    )
+        s_col_l, s_col_r = st.columns([1, 1.3])
+        with s_col_l:
+            story_motif_titles = [m['title'] for m in siryon_data.FOLKTALE_MOTIFS]
+            chosen_motif_title = st.selectbox("Select Traditional Qalamoun Oral Motif:", options=story_motif_titles)
+            chosen_motif = next(m for m in siryon_data.FOLKTALE_MOTIFS if m['title'] == chosen_motif_title)
 
-    story_motif_titles = [m['title'] for m in siryon_data.FOLKTALE_MOTIFS]
-    chosen_motif_title = st.selectbox("Choose a Qalamoun Oral Legend Motif:", options=story_motif_titles)
-    chosen_motif = next(m for m in siryon_data.FOLKTALE_MOTIFS if m['title'] == chosen_motif_title)
+            custom_story_prompt = st.text_area(
+                "Customize Folktale Narrative Prompt:",
+                value=chosen_motif['prompt'],
+                height=110
+            )
 
-    custom_story_prompt = st.text_area(
-        "Or customize your folktale prompt:",
-        value=chosen_motif['prompt'],
-        height=90
-    )
-
-    if st.button("✨ Weave Bilingual Levantine Folktale (Gemini Generative Studio)", type="primary"):
-        with st.spinner("Weaving bilingual Western Neo-Aramaic story with Gemini..."):
-            ai_story = call_gemini_story_weaver(st.session_state['gemini_api_key'], custom_story_prompt)
-            if ai_story:
-                st.session_state['story_generated'] = ai_story
-            else:
-                # Authentic rich folklore fallback
-                st.session_state['story_generated'] = f"""
+            if st.button("✨ Weave Bilingual Levantine Folktale", type="primary", use_container_width=True):
+                with st.spinner("Weaving story with Gemini..."):
+                    ai_story = call_gemini_story_weaver(st.session_state['gemini_api_key'], custom_story_prompt)
+                    if ai_story:
+                        st.session_state['story_generated'] = ai_story
+                    else:
+                        st.session_state['story_generated'] = f"""
 ### {chosen_motif['title']}
 *A Bilingual Levantine Folktale from the Qalamoun Ridge • Maaloula & Jubb'adin Oral Tradition*
 
@@ -466,104 +485,98 @@ As Hanna rested his hand against the gnarled bark of a thousand-year-old cedar t
 
 When the shepherd returned to the valley at twilight, the families broke warm flatbread (**lḥem tannūrā / ܠܚܡܐ ܕܬܢܘܪܐ**) and drank cold water from the village spring (**mayyā ḏ-ʕaynā / ܡܝܐ ܕܥܝܢܐ**), knowing that so long as the syllables of Qalamoun were spoken around the hearth, their village of sweet waters would endure.
 """
-    if st.session_state['story_generated']:
-        st.markdown(
-            f"""
-            <div style="border:1px solid #cbd5e1; border-radius:12px; padding:24px; background:#fafafa; margin-top:16px;">
-                {st.session_state['story_generated']}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        with s_col_r:
+            if st.session_state['story_generated']:
+                st.markdown(
+                    f"""
+                    <div class="card-box" style="background:#fafaf9;">
+                        {st.session_state['story_generated']}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+            else:
+                st.info("👈 Choose a motif or type a prompt and click **'Weave Bilingual Levantine Folktale'** to read your bilingual story.")
 
 
 # ==============================================================================
-# TAB 3: WORK (AI Epigraphy & Researcher Workbench)
-# EXACT SPECIFICATION IMPLEMENTATION FROM PROTOTYPE + RICH FUNCTIONALITY
+# TAB 3: WORK (AI Epigraphy & Researcher Workbench) — PRESERVES ALL PROTOTYPE SPECIFICATIONS
 # ==============================================================================
 with tab3:
-    st.header("🔬 WORK: AI Epigraphy & MASC Researcher Workbench")
-    st.write(
-        "Simulates ingesting analog audio tapes from Heidelberg University’s **Maaloula Aramaic Speech Corpus (MASC)**. "
-        "Runs Chirp/USM candidate ASR alignment, breaks down Semitic root tokens (`√ʔ-t-y`, `√q-r-y`), links cognates to "
-        "Classical Syriac/Hebrew, and allows 1-click Gold Standard approval."
-    )
+    st.markdown("### AI Epigraphy & MASC Researcher Workbench")
+    st.caption("Heidelberg University Maaloula Aramaic Speech Corpus (MASC) • Ingestion, USM/Chirp Alignment & Elder Gold Standard Review")
 
-    w_col1, w_col2 = st.columns([1, 2])
+    w_col1, w_col2 = st.columns([1, 1.8])
 
     with w_col1:
-        st.subheader("Archival MASC Audio Tape Deck")
+        st.markdown("#### Archival Audio Ingestion Deck")
         selected_tape_title = st.selectbox(
-            "Select Analog Reel Recording:",
+            "Select Archival Tape Reel:",
             options=[t["title"] for t in siryon_data.MASC_TAPES]
         )
         current_tape = next(t for t in siryon_data.MASC_TAPES if t["title"] == selected_tape_title)
 
         st.markdown(
             f"""
-            <div style="background:#0f172a; color:#f8fafc; padding:16px; border-radius:12px; margin-bottom:14px;">
-                <div style="font-family:'JetBrains Mono',monospace; color:#38bdf8; font-size:0.8rem;">TAPE REEL ARCHIVE METADATA</div>
-                <div style="font-weight:700; font-size:1.05rem; margin-top:4px;">{current_tape['tape_id']}</div>
-                <div style="font-size:0.85rem; color:#94a3b8;">Speaker: {current_tape['speaker']}</div>
-                <div style="font-size:0.85rem; color:#94a3b8;">Village: {current_tape['village']}</div>
-                <div style="font-size:0.85rem; color:#4ade80;">SNR / Digitization: {current_tape['snr']}</div>
+            <div style="border:1px solid #cbd5e1; background:#f8fafc; padding:14px 18px; border-radius:10px; margin-bottom:12px;">
+                <div style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; font-weight:600; color:#0284c7;">REEL ID: {current_tape['tape_id']}</div>
+                <div style="font-size:0.9rem; font-weight:600; color:#0f172a; margin-top:2px;">{current_tape['speaker']}</div>
+                <div style="font-size:0.82rem; color:#475569;">Community: {current_tape['village']}</div>
+                <div style="font-size:0.82rem; color:#16a34a; font-family:'JetBrains Mono',monospace;">Transfer Quality: {current_tape['snr']}</div>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-        # EXACT line from prototype snippet:
-        # Audio simulator
+        # EXACT PROTOTYPE LINE: Audio simulator
         st.audio("https://actions.google.com/sounds/v1/ambiences/outdoor_field_wind.ogg")
 
-        # EXACT line from prototype snippet:
-        if st.button("Run Auto-Segmentation & Chirp ASR Alignment", use_container_width=True):
+        # EXACT PROTOTYPE LINE: Run Auto-Segmentation button
+        if st.button("Run Auto-Segmentation & Chirp ASR Alignment", use_container_width=True, type="primary"):
             st.session_state['asr_run'] = True
 
         if st.session_state['gold_standard_approved']:
-            st.divider()
-            st.markdown("#### ✅ Heidelberg MASC Gold Standard Ledger")
-            for item in st.session_state['gold_standard_approved']:
-                st.success(f"Archived to Gold Standard: `{item}`")
+            with st.expander(f"📚 Heidelberg MASC Gold Standard Archive ({len(st.session_state['gold_standard_approved'])})", expanded=True):
+                for gitem in st.session_state['gold_standard_approved']:
+                    st.success(gitem)
 
     with w_col2:
         if st.session_state.get('asr_run', False):
-            # EXACT Subheader from prototype snippet:
+            # EXACT PROTOTYPE SUBHEADER
             st.subheader("ASR Candidate Transcriptions & Confidence")
 
-            # EXACT Markdown block from prototype snippet:
+            # EXACT PROTOTYPE MARKDOWN
             st.markdown("""
             * **Candidate 1 (IPA Aligned - 96.4% Conf):** `/ʔb-ˈʃajna ˈtʰeːtun l-qarˈjeːtʰan ˈħalwata/`
             * **Candidate 2 (Syriac Estrangelo - 94.1% Conf):** `ܒܫܰܝܢܳܐ ܐܶܬ݂ܰܝܬ݁ܽܘܢ ܠܩܰܪܝܺܬ݂ܰܢ ܚܰܠܘܳܬ݂ܳܐ`
             * **Candidate 3 (Adapted Arabic - 98.2% Conf):** `بْشَيْنا تِيتُن لْقَرْيِتْنا حَلْواتا`
             """)
 
-            # EXACT Divider and Subheader from prototype snippet:
+            # EXACT PROTOTYPE DIVIDER & SUBHEADER
             st.divider()
             st.subheader("Morphological Token Decomposition")
 
-            # EXACT Table block from prototype snippet:
+            # EXACT PROTOTYPE TABLE
             st.table([
                 {"Token": "b-šayna", "Morpheme": "b- (in) + šayn-a (peace)", "Cognate": "Syr: ܒܫܝܢܐ | Heb: בְּשָׁלוֹם", "Status": "Verified"},
                 {"Token": "ṯētun", "Morpheme": "√ʔ-t-y (come) - 2nd Pl. Perf", "Cognate": "Arab: أتيتم | Syr: ܐܬܝܬܘܢ", "Status": "Verified"},
                 {"Token": "l-qaryēṯan", "Morpheme": "l- (to) + qary-ēṯ-an (our village)", "Cognate": "Arab: لقرية | Syr: ܠܩܪܝܬܐ", "Status": "Verified"}
             ])
 
-            # EXACT Columns and Buttons from prototype snippet:
+            # EXACT PROTOTYPE COLUMNS & BUTTONS
             col_a, col_b = st.columns(2)
             if col_a.button("✅ Approve to MASC Gold Standard", type="primary"):
                 st.session_state['gold_standard_approved'].append(
                     "/ʔb-ˈʃajna ˈtʰeːtun l-qarˈjeːtʰan ˈħalwata/ • ܒܫܰܝܢܳܐ ܐܶܬ݂ܰܝܬ݁ܽܘܢ ܠܩܰܪܝܺܬ݂ܰܢ ܚܰܠܘܳܬ݂ܳܐ"
                 )
-                st.toast("Approved to MASC Gold Standard Corpus!", icon="✅")
-
+                st.toast("Approved to MASC Gold Standard Archive!", icon="✅")
             if col_b.button("🚩 Flag for Elder Review Circle"):
-                st.toast("Flagged for Maaloula & Jubb'adin Elder Review Circle", icon="🚩")
+                st.toast("Flagged for Qalamoun Elder Review Circle", icon="🚩")
         else:
-            st.info("👈 Click **'Run Auto-Segmentation & Chirp ASR Alignment'** in the Tape Deck panel to inspect candidate alignments and Semitic root token decomposition.")
+            st.info("👈 Click **'Run Auto-Segmentation & Chirp ASR Alignment'** on the archival tape deck panel to run USM/Chirp epigraphy alignment.")
 
 # ==============================================================================
-# Footer - EXACT FOOTER SNIPPET FROM PROTOTYPE
+# EXACT PROTOTYPE FOOTER
 # ==============================================================================
 st.divider()
 st.caption("Project Siryon Prototype • Built with Google Gemini 2.0 Flash & Argolis Vertex AI • Partnership with Enable Syria (`go/enable-syria`) & Heidelberg University")
