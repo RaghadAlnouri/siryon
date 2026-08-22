@@ -1,0 +1,23 @@
+# MASC corpus — CC BY-NC 4.0, fetched by inventory.sh, never committed
+MASC_v1.0.zip
+0*_MASC_*/
+*.mp3
+*.wav
+*.TextGrid
+*.db
+MASC_dataframe.csv
+MASC_metadata.csv
+
+# run outputs
+bench_results.json
+probe_results.json
+probe_pro.json
+probe_flash.json
+masc_inventory.txt
+
+# local junk
+chrome_profile/
+ffcheck/
+__pycache__/
+*.pyc
+.env
